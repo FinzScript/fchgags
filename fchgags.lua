@@ -1,21 +1,17 @@
---[[ 
-  Fikri Cihuy Hub Grow a Garden
-  Part 1/6 – Main UI Structure and Tab Navigation
-  Language: English
-  UI: Mobile Friendly, Black background, Blue outline
---]]
+-- Fikri Cihuy Hub Grow a Garden - Part 1
+-- Main GUI Structure, Draggable, Minimize, Centered
 
--- Services
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
+local UIS = game:GetService("UserInputService")
 
--- Screen GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FikriCihuyHubGrowAGarden"
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
-screenGui.Parent = PlayerGui
+-- Root ScreenGui
+local gui = Instance.new("ScreenGui")
+gui.Name = "FikriCihuyHubGrowAGarden"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = PlayerGui
 
 -- Main Frame
 local mainFrame = Instance.new("Frame")
@@ -26,283 +22,282 @@ mainFrame.BackgroundColor3 = Color3.fromRGB(17, 17, 17)
 mainFrame.BorderColor3 = Color3.fromRGB(0, 127, 255)
 mainFrame.BorderSizePixel = 2
 mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-mainFrame.Parent = screenGui
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = gui
 
--- Main Frame Design
+-- Corners and Outline
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
-Instance.new("UIStroke", mainFrame).Color = Color3.fromRGB(0, 127, 255)
+local stroke = Instance.new("UIStroke", mainFrame)
+stroke.Color = Color3.fromRGB(0, 127, 255)
+stroke.Thickness = 2
 
 -- Title Bar
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Name = "TitleLabel"
 titleLabel.Size = UDim2.new(1, 0, 0, 40)
 titleLabel.Position = UDim2.new(0, 0, 0, 0)
 titleLabel.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-titleLabel.BorderSizePixel = 0
 titleLabel.Text = "Fikri Cihuy Hub - Grow A Garden"
 titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextSize = 18
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextStrokeTransparency = 0.8
 titleLabel.Parent = mainFrame
-
 Instance.new("UICorner", titleLabel).CornerRadius = UDim.new(0, 8)
 
--- Tab Bar
-local tabBar = Instance.new("Frame")
-tabBar.Name = "TabBar"
-tabBar.Size = UDim2.new(1, 0, 0, 45)
-tabBar.Position = UDim2.new(0, 0, 0, 40)
-tabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-tabBar.BorderSizePixel = 0
-tabBar.Parent = mainFrame
+-- Minimize Button
+local minimizeBtn = Instance.new("TextButton")
+minimizeBtn.Text = "-"
+minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
+minimizeBtn.Position = UDim2.new(1, -35, 0, 5)
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(0, 127, 255)
+minimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeBtn.Font = Enum.Font.GothamBold
+minimizeBtn.TextSize = 20
+minimizeBtn.Parent = mainFrame
+Instance.new("UICorner", minimizeBtn)
 
--- Tabs
+-- Tab & Content Setup
 local tabNames = {"Status", "Main", "Event", "Shop", "Teleport", "Credits"}
 local tabs = {}
 local contentFrames = {}
 
-for i, tabName in ipairs(tabNames) do
-    local tabButton = Instance.new("TextButton")
-    tabButton.Name = tabName.."Tab"
-    tabButton.Size = UDim2.new(0, 100, 0, 30)
-    tabButton.Position = UDim2.new(0, 10 + ((i - 1) * 105), 0, 7)
-    tabButton.Text = tabName
-    tabButton.Font = Enum.Font.GothamBold
-    tabButton.TextSize = 14
-    tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tabButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    tabButton.AutoButtonColor = true
-    tabButton.Parent = tabBar
+-- Tab Bar
+local tabBar = Instance.new("Frame", mainFrame)
+tabBar.Name = "TabBar"
+tabBar.Size = UDim2.new(1, 0, 0, 45)
+tabBar.Position = UDim2.new(0, 0, 0, 40)
+tabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 
-    Instance.new("UICorner", tabButton).CornerRadius = UDim.new(0, 6)
-    Instance.new("UIStroke", tabButton).Color = Color3.fromRGB(0, 127, 255)
-
-    tabs[tabName] = tabButton
+-- Create Tabs
+for i, name in ipairs(tabNames) do
+	local btn = Instance.new("TextButton")
+	btn.Name = name.."Tab"
+	btn.Text = name
+	btn.Size = UDim2.new(0, 100, 0, 30)
+	btn.Position = UDim2.new(0, 10 + (i - 1) * 105, 0, 7)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	btn.Parent = tabBar
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+	tabs[name] = btn
 end
 
--- Content Frames
-for _, tabName in ipairs(tabNames) do
-    local content = Instance.new("Frame")
-    content.Name = tabName.."Content"
-    content.Size = UDim2.new(1, -20, 1, -100)
-    content.Position = UDim2.new(0, 10, 0, 90)
-    content.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    content.Visible = false
-    content.Parent = mainFrame
-
-    Instance.new("UICorner", content).CornerRadius = UDim.new(0, 10)
-    Instance.new("UIStroke", content).Color = Color3.fromRGB(0, 127, 255)
-
-    contentFrames[tabName] = content
+-- Create Tab Content Frames
+for _, name in ipairs(tabNames) do
+	local content = Instance.new("Frame")
+	content.Name = name.."Content"
+	content.Size = UDim2.new(1, -20, 1, -100)
+	content.Position = UDim2.new(0, 10, 0, 90)
+	content.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	content.Visible = false
+	content.Parent = mainFrame
+	Instance.new("UICorner", content)
+	contentFrames[name] = content
 end
 
 -- Tab Switching Logic
 local function showTab(name)
-    for tab, frame in pairs(contentFrames) do
-        frame.Visible = (tab == name)
-    end
+	for tab, frame in pairs(contentFrames) do
+		frame.Visible = (tab == name)
+	end
 end
 
--- Tab Click Connect
-for name, button in pairs(tabs) do
-    button.MouseButton1Click:Connect(function()
-        showTab(name.."Content")
-    end)
+for name, btn in pairs(tabs) do
+	btn.MouseButton1Click:Connect(function()
+		showTab(name.."Content")
+	end)
 end
 
--- Show Default Tab
+-- Default tab
 showTab("StatusContent")
 
+-- Minimize toggle
+minimizeBtn.MouseButton1Click:Connect(function()
+	local state = not tabBar.Visible
+	tabBar.Visible = state
+	for _, v in pairs(contentFrames) do
+		v.Visible = false
+	end
+end)
+
+-- === STATUS TAB FEATURES ===
 local statusFrame = contentFrames["Status"]
 
--- Title
-local statusTitle = Instance.new("TextLabel")
-statusTitle.Text = "Status Overview"
-statusTitle.Size = UDim2.new(1, 0, 0, 30)
-statusTitle.Position = UDim2.new(0, 0, 0, 0)
-statusTitle.Font = Enum.Font.GothamBold
-statusTitle.TextSize = 18
-statusTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-statusTitle.BackgroundTransparency = 1
-statusTitle.Parent = statusFrame
+local layout = Instance.new("UIListLayout", statusFrame)
+layout.Padding = UDim.new(0, 6)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Info Grid Layout
-local gridLayout = Instance.new("UIListLayout", statusFrame)
-gridLayout.Padding = UDim.new(0, 6)
-gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+-- Utility: Create status info box
+local function createStatusInfo(titleText, valueFunc)
+	local box = Instance.new("Frame")
+	box.Size = UDim2.new(1, 0, 0, 40)
+	box.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	box.BorderColor3 = Color3.fromRGB(0, 127, 255)
+	Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+	box.Parent = statusFrame
 
--- Utility Function to Create Status Box
-local function createStatusLine(labelText, valueTextFunc)
-	local container = Instance.new("Frame")
-	container.Size = UDim2.new(1, 0, 0, 35)
-	container.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	container.BorderColor3 = Color3.fromRGB(0, 127, 255)
-	container.Parent = statusFrame
-	Instance.new("UICorner", container).CornerRadius = UDim.new(0, 6)
+	local title = Instance.new("TextLabel", box)
+	title.Size = UDim2.new(0.5, -10, 1, 0)
+	title.Position = UDim2.new(0, 10, 0, 0)
+	title.BackgroundTransparency = 1
+	title.Text = titleText
+	title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	title.Font = Enum.Font.Gotham
+	title.TextSize = 14
+	title.TextXAlignment = Enum.TextXAlignment.Left
 
-	local label = Instance.new("TextLabel", container)
-	label.Text = labelText
-	label.Size = UDim2.new(0.5, 0, 1, 0)
-	label.Position = UDim2.new(0, 10, 0, 0)
-	label.Font = Enum.Font.Gotham
-	label.TextSize = 14
-	label.TextColor3 = Color3.fromRGB(255, 255, 255)
-	label.BackgroundTransparency = 1
-	label.TextXAlignment = Enum.TextXAlignment.Left
-
-	local value = Instance.new("TextLabel", container)
+	local value = Instance.new("TextLabel", box)
 	value.Name = "Value"
-	value.Text = "..."
 	value.Size = UDim2.new(0.5, -10, 1, 0)
 	value.Position = UDim2.new(0.5, 0, 0, 0)
+	value.BackgroundTransparency = 1
+	value.TextColor3 = Color3.fromRGB(150, 255, 150)
 	value.Font = Enum.Font.Gotham
 	value.TextSize = 14
-	value.TextColor3 = Color3.fromRGB(200, 255, 200)
-	value.BackgroundTransparency = 1
 	value.TextXAlignment = Enum.TextXAlignment.Right
 
 	coroutine.wrap(function()
-		while true do
-			if container.Parent == nil then break end
-			value.Text = valueTextFunc()
+		while box.Parent do
+			pcall(function()
+				value.Text = valueFunc()
+			end)
 			wait(1)
 		end
 	end)()
 
-	return container
+	value.Parent = box
 end
 
--- Feature: Playtime
-local joinTime = os.time()
-createStatusLine("Playtime", function()
-	local seconds = os.time() - joinTime
-	local minutes = math.floor(seconds / 60)
-	return tostring(minutes) .. " min"
+-- Track playtime
+local startTime = os.time()
+createStatusInfo("Playtime", function()
+	local elapsed = os.time() - startTime
+	local min = math.floor(elapsed / 60)
+	return min .. " min"
 end)
 
--- Feature: Earnings (mock)
+-- Show harvest earnings (mock: use leaderstats if exists)
 local leaderstats = player:FindFirstChild("leaderstats")
-createStatusLine("Harvest Earnings", function()
+createStatusInfo("Harvest Earnings", function()
 	if leaderstats and leaderstats:FindFirstChild("Cash") then
 		return "$" .. tostring(leaderstats.Cash.Value)
 	end
 	return "$0"
 end)
 
--- Feature: Join Date
-createStatusLine("Join Date", function()
+-- Show join date
+createStatusInfo("Join Date", function()
 	local now = DateTime.now()
 	return now:FormatLocalTime("dddd, MMMM D, YYYY", "en-us")
 end)
 
--- Feature: Server Region
-createStatusLine("Server Region", function()
-	local ip = game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(player)
-	return ip or "Unknown"
+-- Server region (mocked)
+createStatusInfo("Server Region", function()
+	local ok, result = pcall(function()
+		return game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(player)
+	end)
+	return ok and result or "Unknown"
 end)
 
--- Feature: Player Count
-createStatusLine("Players in Server", function()
+-- Count players in server
+createStatusInfo("Players in Server", function()
 	return tostring(#Players:GetPlayers()) .. " players"
 end)
 
--- Feature: Avatar Thumbnail
-local avatarFrame = Instance.new("ImageLabel")
-avatarFrame.Size = UDim2.new(0, 70, 0, 70)
-avatarFrame.Position = UDim2.new(0.5, -35, 1, -80)
-avatarFrame.BackgroundTransparency = 1
-avatarFrame.Image = "rbxthumb://type=AvatarHeadShot&id=" .. player.UserId .. "&w=150&h=150"
-avatarFrame.Parent = statusFrame
+-- Show avatar
+local avatarImg = Instance.new("ImageLabel", statusFrame)
+avatarImg.Size = UDim2.new(0, 70, 0, 70)
+avatarImg.BackgroundTransparency = 1
+avatarImg.Image = "rbxthumb://type=AvatarHeadShot&id="..player.UserId.."&w=150&h=150"
+avatarImg.LayoutOrder = 99
 
--- Feature: Weather (example detection)
-createStatusLine("Current Weather", function()
-	local replicated = game:GetService("ReplicatedStorage")
-	local weather = replicated:FindFirstChild("CurrentWeather")
+-- Weather detection
+createStatusInfo("Current Weather", function()
+	local rs = game:GetService("ReplicatedStorage")
+	local weather = rs:FindFirstChild("CurrentWeather")
 	if weather and weather:IsA("StringValue") then
 		return weather.Value
 	end
 	return "Unknown"
 end)
 
-local mainFrameContent = contentFrames["Main"]
+-- === MAIN TAB FEATURES ===
+local mainContent = contentFrames["Main"]
 
--- Grid Layout for Main Actions
 local grid = Instance.new("UIGridLayout")
 grid.CellSize = UDim2.new(0.45, 0, 0.25, 0)
-grid.CellPadding = UDim2.new(0.05, 0, 0.05, 0)
-grid.SortOrder = Enum.SortOrder.LayoutOrder
-grid.Parent = mainFrameContent
+grid.CellPadding = UDim.new(0.05, 0)
+grid.Parent = mainContent
 
--- Button Creation Utility
-local function createMainButton(name, color, parent)
-	local button = Instance.new("TextButton")
-	button.Name = name.."Button"
-	button.Text = name
-	button.Font = Enum.Font.GothamBold
-	button.TextSize = 16
-	button.TextColor3 = Color3.fromRGB(255, 255, 255)
-	button.BackgroundColor3 = color or Color3.fromRGB(0, 170, 255)
-	button.BorderSizePixel = 0
-	button.AutoButtonColor = true
-	button.Parent = parent
-	Instance.new("UICorner", button)
-	return button
+-- Utility button
+local function createMainBtn(text)
+	local btn = Instance.new("TextButton")
+	btn.Text = text
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+	Instance.new("UICorner", btn)
+	btn.Parent = mainContent
+	return btn
 end
 
--- Plant Button (Feature: Collect All Plants)
-local plantBtn = createMainButton("Collect Plants", Color3.fromRGB(0, 200, 255), mainFrameContent)
-plantBtn.MouseButton1Click:Connect(function()
-	local plantFolder = workspace:FindFirstChild("Plants")
-	if not plantFolder then return end
-
-	local count = 0
-	for _, plant in pairs(plantFolder:GetChildren()) do
-		local owner = plant:FindFirstChild("Owner")
-		local ready = plant:FindFirstChild("IsReadyToHarvest")
+-- === Button 1: Collect All Plants ===
+local collectBtn = createMainBtn("Collect All Plants")
+collectBtn.MouseButton1Click:Connect(function()
+	local found = 0
+	local plants = workspace:FindFirstChild("Plants")
+	if not plants then return end
+	for _, p in pairs(plants:GetChildren()) do
+		local owner = p:FindFirstChild("Owner")
+		local ready = p:FindFirstChild("IsReadyToHarvest")
 		if owner and ready and ready.Value == true and (owner.Value == player or owner.Value == player.Name) then
-			-- Example logic to destroy or harvest
-			plant:Destroy()
-			count += 1
+			p:Destroy() -- Or fire event to collect
+			found += 1
 		end
 	end
-	warn("Collected "..count.." plants.")
+	if found > 0 then
+		print("Collected "..found.." plants")
+	else
+		warn("No plants ready to harvest")
+	end
 end)
 
--- Water Button (Feature: Sell Inventory)
-local waterBtn = createMainButton("Sell Inventory", Color3.fromRGB(0, 150, 200), mainFrameContent)
-waterBtn.MouseButton1Click:Connect(function()
+-- === Button 2: Sell Inventory ===
+local sellBtn = createMainBtn("Sell All Fruits")
+sellBtn.MouseButton1Click:Connect(function()
 	local inv = player:FindFirstChild("Inventory")
 	if not inv or #inv:GetChildren() == 0 then
 		warn("Please collect fruits before selling.")
 		return
 	end
 
-	local sold = 0
-	for _, fruit in pairs(inv:GetChildren()) do
-		local val = fruit:GetAttribute("SellValue") or 100
-		if fruit:IsA("Instance") then
-			-- Optional: Add to currency
-			-- leaderstats.Cash.Value += val
-			fruit:Destroy()
-			sold += 1
+	local count = 0
+	for _, item in pairs(inv:GetChildren()) do
+		if item:IsA("Instance") then
+			item:Destroy() -- or fire event to sell
+			count += 1
 		end
 	end
-	print("Sold "..sold.." fruits.")
+
+	print("Sold "..count.." fruits.")
 end)
 
--- Harvest Button (Feature: Toggle Hide Trees)
+-- === Button 3: Toggle Tree Visibility ===
 local hideTrees = false
-local harvestBtn = createMainButton("Toggle Trees", Color3.fromRGB(0, 100, 200), mainFrameContent)
-harvestBtn.MouseButton1Click:Connect(function()
+local toggleTreeBtn = createMainBtn("Toggle Trees")
+toggleTreeBtn.MouseButton1Click:Connect(function()
 	hideTrees = not hideTrees
+	local plants = workspace:FindFirstChild("Plants")
+	if not plants then return end
 
-	local plantFolder = workspace:FindFirstChild("Plants")
-	if not plantFolder then return end
-
-	for _, plant in pairs(plantFolder:GetChildren()) do
-		local owner = plant:FindFirstChild("Owner")
+	for _, p in pairs(plants:GetChildren()) do
+		local owner = p:FindFirstChild("Owner")
 		if owner and (owner.Value == player or owner.Value == player.Name) then
-			for _, part in pairs(plant:GetDescendants()) do
+			for _, part in pairs(p:GetDescendants()) do
 				if part:IsA("BasePart") and (part.Name == "Tree" or part.Name == "Trunk" or part.Name == "Leaves") then
 					part.Transparency = hideTrees and 1 or 0
 					part.CanCollide = not hideTrees
@@ -310,271 +305,300 @@ harvestBtn.MouseButton1Click:Connect(function()
 			end
 		end
 	end
+
 	print(hideTrees and "Trees hidden" or "Trees shown")
 end)
 
--- Remove Button (Feature: Open Fruit Purchase Menu)
-local removeBtn = createMainButton("Open Fruit Buyer", Color3.fromRGB(255, 150, 0), mainFrameContent)
-removeBtn.MouseButton1Click:Connect(function()
-	local buyTab = contentFrames["Pembelian Buah"]
+-- === Button 4: Open Fruit Purchase UI ===
+local openBuyBtn = createMainBtn("Buy Fruits")
+openBuyBtn.MouseButton1Click:Connect(function()
 	showTab("Pembelian BuahContent")
-	buyTab.Visible = true
 end)
 
-local eventFrame = contentFrames["Event"]
+-- === EVENT TAB FEATURES (EXTENDED) ===
+local eventContent = contentFrames["Event"]
 
-local layout = Instance.new("UIGridLayout")
-layout.CellSize = UDim2.new(0.45, 0, 0.25, 0)
-layout.CellPadding = UDim2.new(0.05, 0, 0.05, 0)
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-layout.Parent = eventFrame
+local eventGrid = Instance.new("UIGridLayout", eventContent)
+eventGrid.CellSize = UDim2.new(0.45, 0, 0.22, 0)
+eventGrid.CellPadding = UDim.new(0.05, 0)
+eventGrid.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Utility to Create Event Buttons
-local function createEventButton(text, parent)
+-- Utility to create buttons
+local function createEventButton(text)
 	local btn = Instance.new("TextButton")
 	btn.Text = text
 	btn.Font = Enum.Font.GothamBold
-	btn.TextSize = 15
+	btn.TextSize = 13
 	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	btn.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
-	btn.BorderSizePixel = 0
+	btn.BackgroundColor3 = Color3.fromRGB(30, 60, 120)
 	Instance.new("UICorner", btn)
-	btn.Parent = parent
+	btn.Parent = eventContent
 	return btn
 end
 
--- Button 1: Teleport to Moonit Fruit
-local teleportMoonit = createEventButton("Teleport to Moonit", eventFrame)
-teleportMoonit.MouseButton1Click:Connect(function()
+-- === 1. Teleport to Moonit Fruit ===
+local moonitTPBtn = createEventButton("Teleport to Moonit")
+moonitTPBtn.MouseButton1Click:Connect(function()
 	local found = false
 	for _, obj in pairs(workspace:GetDescendants()) do
-		if obj:IsA("BasePart") and string.find(obj.Name:lower(), "moonit") then
+		if obj:IsA("BasePart") and obj.Name:lower():find("moonit") then
 			local owner = obj:FindFirstChild("Owner")
-			local isMine = owner and (owner.Value == player or owner.Value == player.Name)
-			if isMine then
+			if owner and (owner.Value == player or owner.Value == player.Name) then
 				player.Character:MoveTo(obj.Position + Vector3.new(0, 3, 0))
 				found = true
 				break
 			end
 		end
 	end
-	if not found then
-		warn("Your Moonit fruit is not in your plot.")
-	end
+	if not found then warn("Your Moonit fruit is not in your plot.") end
 end)
 
--- Button 2: ESP Moonit Fruit (Toggle)
-local espActive = false
-local moonitESPList = {}
+-- === 2. ESP Moonit Fruit (Toggle) ===
+local moonitESP = {}
+local moonitESPState = false
+local moonitESPBtn = createEventButton("ESP Moonit OFF")
+moonitESPBtn.MouseButton1Click:Connect(function()
+	moonitESPState = not moonitESPState
+	moonitESPBtn.Text = "ESP Moonit " .. (moonitESPState and "ON" or "OFF")
 
-local espMoonitBtn = createEventButton("ESP Moonit OFF", eventFrame)
-espMoonitBtn.MouseButton1Click:Connect(function()
-	espActive = not espActive
-	espMoonitBtn.Text = "ESP Moonit " .. (espActive and "ON" or "OFF")
+	for _, esp in pairs(moonitESP) do if esp:IsA("Highlight") then esp:Destroy() end end
+	table.clear(moonitESP)
 
-	-- Clear previous
-	for _, v in pairs(moonitESPList) do
-		if v:IsA("Highlight") then v:Destroy() end
-	end
-	table.clear(moonitESPList)
-
-	if espActive then
+	if moonitESPState then
 		for _, obj in pairs(workspace:GetDescendants()) do
-			if obj:IsA("BasePart") and string.find(obj.Name:lower(), "moonit") then
+			if obj:IsA("BasePart") and obj.Name:lower():find("moonit") then
 				local owner = obj:FindFirstChild("Owner")
-				local isMine = owner and (owner.Value == player or owner.Value == player.Name)
-				if isMine then
-					local h = Instance.new("Highlight", obj)
-					h.FillColor = Color3.fromRGB(0, 255, 255)
-					h.OutlineColor = Color3.fromRGB(255, 255, 255)
-					h.FillTransparency = 0.2
-					h.OutlineTransparency = 0
-					h.Adornee = obj
-					table.insert(moonitESPList, h)
+				if owner and (owner.Value == player or owner.Value == player.Name) then
+					local hl = Instance.new("Highlight", obj)
+					hl.FillColor = Color3.fromRGB(0, 255, 255)
+					hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+					hl.Adornee = obj
+					table.insert(moonitESP, hl)
 				end
 			end
 		end
 	end
 end)
 
--- Button 3: Teleport to Owl Event
-local teleportOwlBtn = createEventButton("Teleport to Owl", eventFrame)
-teleportOwlBtn.MouseButton1Click:Connect(function()
-	local found = false
+-- === 3. Auto Teleport Moonit (Every 10 sec) ===
+local autoTP = false
+local autoTPBtn = createEventButton("Auto TP Moonit OFF")
+autoTPBtn.MouseButton1Click:Connect(function()
+	autoTP = not autoTP
+	autoTPBtn.Text = "Auto TP Moonit " .. (autoTP and "ON" or "OFF")
+
+	spawn(function()
+		while autoTP do
+			wait(10)
+			for _, obj in pairs(workspace:GetDescendants()) do
+				if obj:IsA("BasePart") and obj.Name:lower():find("moonit") then
+					local owner = obj:FindFirstChild("Owner")
+					if owner and (owner.Value == player or owner.Value == player.Name) then
+						player.Character:MoveTo(obj.Position + Vector3.new(0, 3, 0))
+						break
+					end
+				end
+			end
+		end
+	end)
+end)
+
+-- === 4. Teleport to Owl Event ===
+local owlBtn = createEventButton("Teleport to Owl")
+owlBtn.MouseButton1Click:Connect(function()
 	for _, obj in pairs(workspace:GetDescendants()) do
-		if obj:IsA("BasePart") and (obj.Name:lower():find("owl") or obj.Name:lower():find("hantu")) then
+		if obj:IsA("BasePart") and obj.Name:lower():find("owl") then
 			player.Character:MoveTo(obj.Position + Vector3.new(0, 3, 0))
-			print("Teleported to Owl Event")
-			found = true
-			break
+			return
 		end
 	end
-	if not found then
-		warn("Owl Event not found on map.")
+	warn("Owl Event not found.")
+end)
+
+-- === 5. ESP All Fruits ===
+local fruitESPList = {}
+local fruitESPState = false
+local fruitESPBtn = createEventButton("ESP All Fruits OFF")
+fruitESPBtn.MouseButton1Click:Connect(function()
+	fruitESPState = not fruitESPState
+	fruitESPBtn.Text = "ESP All Fruits " .. (fruitESPState and "ON" or "OFF")
+
+	for _, v in pairs(fruitESPList) do if v:IsA("Highlight") then v:Destroy() end end
+	table.clear(fruitESPList)
+
+	if fruitESPState then
+		for _, obj in pairs(workspace:GetDescendants()) do
+			if obj:IsA("BasePart") and obj.Name:lower():find("fruit") then
+				local h = Instance.new("Highlight", obj)
+				h.FillColor = Color3.fromRGB(255, 150, 0)
+				h.OutlineColor = Color3.fromRGB(255, 255, 255)
+				h.Adornee = obj
+				table.insert(fruitESPList, h)
+			end
+		end
 	end
 end)
 
--- Button 4: (Future event slot placeholder)
-local futureBtn = createEventButton("Coming Soon...", eventFrame)
-futureBtn.AutoButtonColor = false
-futureBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+-- === 6. Event Sound Toggle ===
+local soundState = false
+local soundBtn = createEventButton("Sound: OFF")
+soundBtn.MouseButton1Click:Connect(function()
+	soundState = not soundState
+	soundBtn.Text = "Sound: " .. (soundState and "ON" or "OFF")
+	if soundState then
+		local s = Instance.new("Sound", workspace)
+		s.SoundId = "rbxassetid://1843521777"
+		s.Volume = 1
+		s:Play()
+	end
+end)
 
+-- === 7. Placeholder Buttons (Coming Soon...) ===
+for i = 1, 6 do
+	local placeholder = createEventButton("Coming Soon: Event "..i)
+	placeholder.AutoButtonColor = false
+	placeholder.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+end
+
+-- === SHOP TAB FEATURES (REBUILT) ===
 local shopFrame = contentFrames["Shop"]
 
-local layout = Instance.new("UIGridLayout")
-layout.CellSize = UDim2.new(0.45, 0, 0.25, 0)
-layout.CellPadding = UDim.new(0.05, 0)
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-layout.Parent = shopFrame
+-- Layout scroll agar aman di Android jika fitur banyak
+local shopScroll = Instance.new("ScrollingFrame", shopFrame)
+shopScroll.Size = UDim2.new(1, 0, 1, 0)
+shopScroll.CanvasSize = UDim2.new(0, 0, 0, 700)
+shopScroll.ScrollBarThickness = 8
+shopScroll.BackgroundTransparency = 1
 
--- Utility for Shop Button
-local function createShopButton(text, parent)
+local layout = Instance.new("UIListLayout", shopScroll)
+layout.Padding = UDim.new(0, 6)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Utility to create shop buttons
+local function createShopButton(text)
 	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -20, 0, 40)
 	btn.Text = text
 	btn.Font = Enum.Font.GothamBold
-	btn.TextSize = 15
+	btn.TextSize = 14
 	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	btn.BackgroundColor3 = Color3.fromRGB(255, 204, 0)
-	btn.BorderSizePixel = 0
+	btn.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
 	Instance.new("UICorner", btn)
-	btn.Parent = parent
+	btn.Parent = shopScroll
 	return btn
 end
 
--- Seed Shop UI Frame
-local seedShopUI = Instance.new("Frame")
-seedShopUI.Name = "SeedShopUI"
-seedShopUI.Size = UDim2.new(0, 300, 0, 250)
-seedShopUI.Position = UDim2.new(0.5, -150, 0.5, -125)
-seedShopUI.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-seedShopUI.Visible = false
-seedShopUI.Parent = screenGui
-Instance.new("UICorner", seedShopUI)
-Instance.new("UIStroke", seedShopUI).Color = Color3.fromRGB(0, 255, 0)
+-- Floating UI Window Maker
+local function makeUIWindow(titleText, size, color)
+	local frame = Instance.new("Frame", gui)
+	frame.Size = size
+	frame.Position = UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2)
+	frame.BackgroundColor3 = color
+	frame.Visible = false
+	Instance.new("UICorner", frame)
+	Instance.new("UIStroke", frame).Color = Color3.fromRGB(255, 255, 255)
 
-local seedLabel = Instance.new("TextLabel", seedShopUI)
-seedLabel.Size = UDim2.new(1, 0, 0, 30)
-seedLabel.BackgroundTransparency = 1
-seedLabel.Text = "Seed Shop (UI only)"
-seedLabel.Font = Enum.Font.GothamBold
-seedLabel.TextSize = 16
-seedLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+	local title = Instance.new("TextLabel", frame)
+	title.Size = UDim2.new(1, -40, 0, 35)
+	title.Position = UDim2.new(0, 10, 0, 5)
+	title.BackgroundTransparency = 1
+	title.Text = titleText
+	title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	title.Font = Enum.Font.GothamBold
+	title.TextSize = 16
+	title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Button 1: Open Seed Shop
-local openSeedBtn = createShopButton("Open Seed Shop", shopFrame)
-openSeedBtn.MouseButton1Click:Connect(function()
-	seedShopUI.Visible = not seedShopUI.Visible
+	local close = Instance.new("TextButton", frame)
+	close.Size = UDim2.new(0, 30, 0, 30)
+	close.Position = UDim2.new(1, -35, 0, 5)
+	close.Text = "X"
+	close.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+	close.TextColor3 = Color3.fromRGB(255, 255, 255)
+	close.Font = Enum.Font.GothamBold
+	close.TextSize = 16
+	Instance.new("UICorner", close)
+	close.MouseButton1Click:Connect(function()
+		frame.Visible = false
+	end)
+
+	return frame
+end
+
+-- 1. Seed Shop UI
+local seedUI = makeUIWindow("Seed Shop (UI only)", UDim2.new(0, 350, 0, 220), Color3.fromRGB(40, 40, 40))
+createShopButton("Open Seed Shop").MouseButton1Click:Connect(function()
+	seedUI.Visible = true
 end)
 
--- Owl UI Frame
-local owlUI = Instance.new("Frame")
-owlUI.Name = "OwlHelperUI"
-owlUI.Size = UDim2.new(0, 280, 0, 180)
-owlUI.Position = UDim2.new(0.5, -140, 0.5, -90)
-owlUI.BackgroundColor3 = Color3.fromRGB(80, 60, 150)
-owlUI.Visible = false
-owlUI.Parent = screenGui
-Instance.new("UICorner", owlUI)
-Instance.new("UIStroke", owlUI).Color = Color3.fromRGB(180, 255, 255)
-
-local owlText = Instance.new("TextLabel", owlUI)
-owlText.Text = "Mini Owl Helper is here!"
-owlText.Size = UDim2.new(1, 0, 0.3, 0)
-owlText.BackgroundTransparency = 1
-owlText.Font = Enum.Font.Gotham
-owlText.TextSize = 16
-owlText.TextColor3 = Color3.fromRGB(255, 255, 255)
-
--- Button 2: Open Owl UI
-local owlBtn = createShopButton("Mini Owl Helper", shopFrame)
-owlBtn.MouseButton1Click:Connect(function()
-	owlUI.Visible = not owlUI.Visible
+-- 2. Mini Owl Helper
+local owlUI = makeUIWindow("Mini Owl Assistant", UDim2.new(0, 320, 0, 180), Color3.fromRGB(60, 60, 100))
+createShopButton("Open Mini Owl UI").MouseButton1Click:Connect(function()
+	owlUI.Visible = true
 end)
 
--- Daily Quest UI
-local questUI = Instance.new("Frame")
-questUI.Name = "DailyQuestUI"
-questUI.Size = UDim2.new(0, 280, 0, 200)
-questUI.Position = UDim2.new(0.5, -140, 0.5, -100)
-questUI.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-questUI.Visible = false
-questUI.Parent = screenGui
-Instance.new("UICorner", questUI)
-Instance.new("UIStroke", questUI).Color = Color3.fromRGB(255, 170, 0)
-
-local questTitle = Instance.new("TextLabel", questUI)
-questTitle.Text = "Daily Quest - Gear Shop"
-questTitle.Size = UDim2.new(1, 0, 0, 30)
-questTitle.BackgroundTransparency = 1
-questTitle.Font = Enum.Font.GothamBold
-questTitle.TextSize = 16
-questTitle.TextColor3 = Color3.fromRGB(255, 255, 0)
-
+-- 3. Daily Quest from Gear NPC
+local questUI = makeUIWindow("Daily Quest", UDim2.new(0, 360, 0, 220), Color3.fromRGB(30, 30, 30))
 local questText = Instance.new("TextLabel", questUI)
-questText.Text = "Harvest 5 fruits and plant 3 seeds."
-questText.Size = UDim2.new(1, -20, 0, 80)
-questText.Position = UDim2.new(0, 10, 0, 40)
-questText.BackgroundTransparency = 1
+questText.Position = UDim2.new(0, 10, 0, 45)
+questText.Size = UDim2.new(1, -20, 0, 150)
+questText.Text = "- Harvest 5 fruits\n- Plant 3 seeds\n- Visit 1 owl event"
 questText.Font = Enum.Font.Gotham
 questText.TextSize = 14
-questText.TextColor3 = Color3.fromRGB(255, 255, 255)
 questText.TextWrapped = true
+questText.TextColor3 = Color3.fromRGB(255, 255, 255)
 questText.TextYAlignment = Enum.TextYAlignment.Top
+questText.BackgroundTransparency = 1
 
--- Button 3: Open Daily Quest
-local questBtn = createShopButton("Daily Quest", shopFrame)
-questBtn.MouseButton1Click:Connect(function()
-	questUI.Visible = not questUI.Visible
+createShopButton("Open Daily Quest").MouseButton1Click:Connect(function()
+	questUI.Visible = true
 end)
 
--- Gear Shop UI
-local gearUI = Instance.new("Frame")
-gearUI.Name = "GearShopUI"
-gearUI.Size = UDim2.new(0, 300, 0, 220)
-gearUI.Position = UDim2.new(0.5, -150, 0.5, -110)
-gearUI.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-gearUI.Visible = false
-gearUI.Parent = screenGui
-Instance.new("UICorner", gearUI)
-Instance.new("UIStroke", gearUI).Color = Color3.fromRGB(255, 255, 0)
+-- 4. Gear Shop UI
+local gearUI = makeUIWindow("Gear Shop", UDim2.new(0, 360, 0, 200), Color3.fromRGB(50, 50, 50))
+local gearText = Instance.new("TextLabel", gearUI)
+gearText.Position = UDim2.new(0, 10, 0, 45)
+gearText.Size = UDim2.new(1, -20, 0, 140)
+gearText.Text = "- Buy shovel\n- Upgrade water can\n- Craft gear"
+gearText.Font = Enum.Font.Gotham
+gearText.TextSize = 14
+gearText.TextWrapped = true
+gearText.TextColor3 = Color3.fromRGB(255, 255, 255)
+gearText.TextYAlignment = Enum.TextYAlignment.Top
+gearText.BackgroundTransparency = 1
 
-local gearTitle = Instance.new("TextLabel", gearUI)
-gearTitle.Text = "Gear Shop UI"
-gearTitle.Size = UDim2.new(1, 0, 0, 30)
-gearTitle.BackgroundTransparency = 1
-gearTitle.Font = Enum.Font.GothamBold
-gearTitle.TextSize = 16
-gearTitle.TextColor3 = Color3.fromRGB(255, 255, 0)
-
--- Button 4: Open Gear Shop UI
-local gearBtn = createShopButton("Gear Shop", shopFrame)
-gearBtn.MouseButton1Click:Connect(function()
-	gearUI.Visible = not gearUI.Visible
+createShopButton("Open Gear Shop").MouseButton1Click:Connect(function()
+	gearUI.Visible = true
 end)
 
 -- === TELEPORT TAB ===
 local teleportFrame = contentFrames["Teleport"]
-local teleportLayout = Instance.new("UIGridLayout", teleportFrame)
-teleportLayout.CellSize = UDim2.new(0.45, 0, 0.25, 0)
-teleportLayout.CellPadding = UDim.new(0.05, 0)
-teleportLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-local function createTeleportButton(text)
+local tpScroll = Instance.new("ScrollingFrame", teleportFrame)
+tpScroll.Size = UDim2.new(1, 0, 1, 0)
+tpScroll.CanvasSize = UDim2.new(0, 0, 0, 400)
+tpScroll.ScrollBarThickness = 8
+tpScroll.BackgroundTransparency = 1
+
+local tpLayout = Instance.new("UIListLayout", tpScroll)
+tpLayout.Padding = UDim.new(0, 6)
+tpLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Teleport Button Utility
+local function createTPButton(text)
 	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -20, 0, 40)
 	btn.Text = text
 	btn.Font = Enum.Font.GothamBold
-	btn.TextSize = 15
-	btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+	btn.TextSize = 14
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	btn.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-	btn.BorderSizePixel = 0
 	Instance.new("UICorner", btn)
-	btn.Parent = teleportFrame
+	btn.Parent = tpScroll
 	return btn
 end
 
--- Teleport Buttons
-local teleportToSeed = createTeleportButton("To Seed Seller")
-teleportToSeed.MouseButton1Click:Connect(function()
+-- Teleport Functions
+createTPButton("Teleport to Seed NPC").MouseButton1Click:Connect(function()
 	for _, obj in pairs(workspace:GetDescendants()) do
 		if obj:IsA("BasePart") and obj.Name:lower():find("seed") and obj.Name:lower():find("npc") then
 			player.Character:MoveTo(obj.Position + Vector3.new(0, 3, 0))
@@ -584,10 +608,9 @@ teleportToSeed.MouseButton1Click:Connect(function()
 	warn("Seed NPC not found.")
 end)
 
-local teleportToSell = createTeleportButton("To Sell NPC")
-teleportToSell.MouseButton1Click:Connect(function()
+createTPButton("Teleport to Sell NPC").MouseButton1Click:Connect(function()
 	for _, obj in pairs(workspace:GetDescendants()) do
-		if obj:IsA("BasePart") and obj.Name:lower():find("sell") and obj.Name:lower():find("npc") then
+		if obj:IsA("BasePart") and obj.Name:lower():find("sell") then
 			player.Character:MoveTo(obj.Position + Vector3.new(0, 3, 0))
 			return
 		end
@@ -595,31 +618,28 @@ teleportToSell.MouseButton1Click:Connect(function()
 	warn("Sell NPC not found.")
 end)
 
-local teleportToGear = createTeleportButton("To Gear Shop")
-teleportToGear.MouseButton1Click:Connect(function()
+createTPButton("Teleport to Gear Shop").MouseButton1Click:Connect(function()
 	for _, obj in pairs(workspace:GetDescendants()) do
-		if obj:IsA("BasePart") and obj.Name:lower():find("gear") and obj.Name:lower():find("npc") then
+		if obj:IsA("BasePart") and obj.Name:lower():find("gear") then
 			player.Character:MoveTo(obj.Position + Vector3.new(0, 3, 0))
 			return
 		end
 	end
-	warn("Gear NPC not found.")
+	warn("Gear Shop not found.")
 end)
 
-local teleportToEgg = createTeleportButton("To Egg Seller")
-teleportToEgg.MouseButton1Click:Connect(function()
+createTPButton("Teleport to Egg Seller").MouseButton1Click:Connect(function()
 	for _, obj in pairs(workspace:GetDescendants()) do
-		if obj:IsA("BasePart") and obj.Name:lower():find("egg") and obj.Name:lower():find("npc") then
+		if obj:IsA("BasePart") and obj.Name:lower():find("egg") then
 			player.Character:MoveTo(obj.Position + Vector3.new(0, 3, 0))
 			return
 		end
 	end
-	warn("Egg NPC not found.")
+	warn("Egg Seller not found.")
 end)
 
 -- === CREDITS TAB ===
 local creditsFrame = contentFrames["Credits"]
-
 local creditsText = Instance.new("TextLabel", creditsFrame)
 creditsText.Size = UDim2.new(1, -20, 1, -20)
 creditsText.Position = UDim2.new(0, 10, 0, 10)
@@ -632,6 +652,7 @@ creditsText.TextYAlignment = Enum.TextYAlignment.Top
 creditsText.Text = [[
 Script created by:
 
+Script Name: Fikri Cihuy Hub Grow a Garden
 Developer: Fiks Cihuy
 Built by: Fiks Cihuy
 Made In: Indonesia
@@ -641,67 +662,91 @@ Fiks Cihuy (90%)
 LPG (10%)
 
 Note: Thank you for using this script!
+Stay farming and enjoy the garden life!
 ]]
 
--- === FRUIT PURCHASE TAB ===
-local buyFrame = Instance.new("Frame", screenGui)
-buyFrame.Name = "BuyFruitUI"
-buyFrame.Size = UDim2.new(0, 320, 0, 200)
-buyFrame.Position = UDim2.new(0.5, -160, 0.5, -100)
-buyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-buyFrame.Visible = false
-Instance.new("UICorner", buyFrame)
+-- === FRUIT BUYER TAB (Panel Pop-Up) ===
+local buyPanel = Instance.new("Frame", gui)
+buyPanel.Name = "FruitBuyer"
+buyPanel.Size = UDim2.new(0, 350, 0, 250)
+buyPanel.Position = UDim2.new(0.5, -175, 0.5, -125)
+buyPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+buyPanel.Visible = false
+Instance.new("UICorner", buyPanel)
+Instance.new("UIStroke", buyPanel).Color = Color3.fromRGB(0, 255, 255)
 
+-- Buy Panel Close
+local closeBtn = Instance.new("TextButton", buyPanel)
+closeBtn.Text = "X"
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 18
+Instance.new("UICorner", closeBtn)
+closeBtn.MouseButton1Click:Connect(function()
+	buyPanel.Visible = false
+end)
+
+-- Title
+local title = Instance.new("TextLabel", buyPanel)
+title.Size = UDim2.new(1, -40, 0, 30)
+title.Position = UDim2.new(0, 10, 0, 5)
+title.BackgroundTransparency = 1
+title.Text = "Buy Fruit"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Fruit selector
 local selectedFruit = Instance.new("StringValue", player)
 selectedFruit.Name = "SelectedFruit"
 selectedFruit.Value = ""
 
--- Button to open from main tab (already exists, reuse showTab)
-
--- Choose Fruit Button
-local chooseBtn = Instance.new("TextButton", buyFrame)
-chooseBtn.Size = UDim2.new(0.45, 0, 0.2, 0)
-chooseBtn.Position = UDim2.new(0.05, 0, 0.2, 0)
-chooseBtn.Text = "Select Apple"
-chooseBtn.Font = Enum.Font.Gotham
-chooseBtn.TextSize = 14
-chooseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-chooseBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-Instance.new("UICorner", chooseBtn)
-
-chooseBtn.MouseButton1Click:Connect(function()
+local pickBtn = Instance.new("TextButton", buyPanel)
+pickBtn.Text = "Select Apple"
+pickBtn.Size = UDim2.new(0.45, 0, 0, 40)
+pickBtn.Position = UDim2.new(0.05, 0, 0.4, 0)
+pickBtn.BackgroundColor3 = Color3.fromRGB(0, 127, 255)
+pickBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+pickBtn.Font = Enum.Font.Gotham
+pickBtn.TextSize = 14
+Instance.new("UICorner", pickBtn)
+pickBtn.MouseButton1Click:Connect(function()
 	selectedFruit.Value = "Apple"
-	print("Selected: Apple")
 end)
 
--- Buy Fruit Button
-local buyBtn = Instance.new("TextButton", buyFrame)
-buyBtn.Size = UDim2.new(0.45, 0, 0.2, 0)
-buyBtn.Position = UDim2.new(0.5, 0, 0.2, 0)
+-- Buy Button
+local buyBtn = Instance.new("TextButton", buyPanel)
 buyBtn.Text = "Buy"
+buyBtn.Size = UDim2.new(0.45, 0, 0, 40)
+buyBtn.Position = UDim2.new(0.5, 0, 0.4, 0)
+buyBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+buyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 buyBtn.Font = Enum.Font.Gotham
 buyBtn.TextSize = 14
-buyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-buyBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
 Instance.new("UICorner", buyBtn)
 
 buyBtn.MouseButton1Click:Connect(function()
-	if selectedFruit.Value == "" then
+	local fruit = selectedFruit.Value
+	if fruit == "" then
 		warn("Please select a fruit before buying.")
 		return
 	end
-
 	local stockFolder = game:GetService("ReplicatedStorage"):FindFirstChild("FruitStock")
 	if not stockFolder then
 		warn("No stock found.")
 		return
 	end
-
-	local fruitStock = stockFolder:FindFirstChild(selectedFruit.Value)
-	if not fruitStock or fruitStock.Value <= 0 then
-		warn("Selected fruit is out of stock.")
+	local fruitItem = stockFolder:FindFirstChild(fruit)
+	if not fruitItem or fruitItem.Value <= 0 then
+		warn("Fruit not available in stock.")
 	else
-		fruitStock.Value -= 1
-		print("Purchased: " .. selectedFruit.Value)
+		fruitItem.Value -= 1
+		print("Purchased:", fruit)
 	end
 end)
+
+-- Open Buy UI from Main tab (already linked in Part 3)
